@@ -2,53 +2,92 @@ import 'dart:io';
 import 'dart:convert';
 
 void main(List<String> args) async {
-  String JambRegNumber;
+  String fullName = '';
+  String JambRegNumber = '';
   List<String?> choosenSubjects = ['', '', '', ''];
   List<String> scores = ['0', '0', '0', '0'];
   print('\n\n\n\n'
       '===>WELCOME TO JAMB RESULT FORMATTER!<===\n\n\n'
       'Please fill in your details carefully as wrong details would lead to a wrong result\n\n');
   if (confirm()) {
+    stdout.write('\n\nPlease Enter your full name: ');
+    String? nullname = stdin.readLineSync();
+    fullName = nullname!.toUpperCase();
     String JambRegNo = regNoVerification();
     if (JambRegNo == '*#00019~#')
       exitprogram();
     else {
       JambRegNumber = JambRegNo;
       jambSubjects();
-      stdout.write(
-          '\nPlease input in the subject\'s code\n\n');
+      stdout.write('\nPlease input in the subject\'s code\n');
       for (var i = 0; i <= 3; i++) {
-        stdout.write('Subject ${i + 1} ');
+        stdout.write('\n\nSubject ${i + 1} ');
         String? nullEnteredSubject = stdin.readLineSync();
         String enteredSubject =
             verifiedSubject(nullEnteredSubject!, choosenSubjects);
         if (enteredSubject == '') {
-          stdout.write('\nPlease enter a Subject code!!!');
+          stdout.write('\n\nPlease enter a Subject code!!!');
           i--;
           continue;
         } else if (enteredSubject == '*#000015#') {
-          stdout.write('\nIncorrect Subject Code! Enter a valid one!!!');
+          stdout.write('\n\nIncorrect Subject Code! Enter a valid one!!!');
           i--;
           continue;
         } else if (enteredSubject == '00000') {
-          stdout.write('\nAlready Choosen! Enter a new one!!!');
+          stdout.write('\n\nAlready Choosen! Enter a new one!!!');
           i--;
           continue;
         } else {
           choosenSubjects[i] = enteredSubject;
-          stdout.write('\nEnter Score from 0 — 100  ');
+          stdout.write('   $enteredSubject');
+          stdout.write('   Enter Score from 0 — 100  ');
           String? nullScore = stdin.readLineSync();
           String score = nullScore!;
           scores[i] = scoreCheck(score);
         }
       }
     }
-    print(JambRegNo);
-    for (var i = 0; i < 3; i++) {
-      stdout.write('Subject \'${choosenSubjects[i]}\' Score \'${scores[i]}\' ');
-    }
+    int totalScore = calculatingScore(scores);
+    await processingResult();
+    print('''
+    FULL NAME: $fullName
+
+    REGISTRATION NUMBER: $JambRegNumber
+
+    SUBJECTS TAKEN AND SCORES:
+    ——————————————————————————————————————————————
+    | 1. | ${choosenSubjects[0]}: | ${scores[0]} |
+    |————|————————————————————————|——————————————|
+    | 2. | ${choosenSubjects[1]}: | ${scores[1]} |
+    |————|————————————————————————|——————————————|
+    | 3. | ${choosenSubjects[2]}: | ${scores[2]} |
+    |————|————————————————————————|——————————————|
+    | 4. | ${choosenSubjects[3]}: | ${scores[3]} |
+    ——————————————————————————————————————————————
+    YOU HAD A CUMMULATIVE SCORE OF ($totalScore/400)
+    ''');
   } else
     exitprogram();
+}
+
+Future processingResult() {
+  print('\n\nProcessing result');
+  for (var i = 0; i <= 2; i++) displayDots();
+  print('\n\n');
+  return Future.delayed(Duration(seconds: 3));
+}
+
+Future displayDots() {
+  stdout.write('.');
+  return Future.delayed(Duration(seconds: 1));
+}
+
+int calculatingScore(scores) {
+  int total = 0;
+  for (var i = 0; i <= 3; i++) {
+    total += int.parse(scores[i]);
+  }
+  return total;
 }
 
 void exitprogram() {
@@ -81,11 +120,10 @@ String scoreCheck(String score) {
 String regNoVerification() {
   String jambRegNo;
   stdout.write('''\n\n
-NOTE: Your Jamb Registration number must be 10 characters long with the
-      first 8 characters as numbers and the remaining two as letters.
-      Anything other than this will not allowed!!!\n\n''');
+NOTE: YOUR JAMB REGISTRATION NUMBER MUST BE IN THIS FORMAT 0 1 2 3 4 5 6 7 T H
+      10 INTEGERS IMMEDIATELY FOLLOWED BY TWO ALPHABETS.\n\n''');
   stdout.write(
-      '\nPlease enter a valid JAMB registration Number (Or press \'C\' to cancle):  ');
+      '\nPlease enter a valid JAMB registration Number (Or press \'C\' to quite):  ');
   while (true) {
     String? regNo = stdin.readLineSync();
     String regno = regNo!;
@@ -98,16 +136,16 @@ NOTE: Your Jamb Registration number must be 10 characters long with the
         break;
       } else {
         stdout.write(
-            '\nInvalid Registration Number!!! Try again!!! (Or press \'C\' to cancle)  ');
+            '\nInvalid Registration Number. Try again (Or press \'C\' to quite)  ');
         continue;
       }
     } else {
       stdout.write(
-          '\nInvalid Registration Number!!! Try again!!! (Or press \'C\' to cancle)  ');
+          '\nInvalid Registration Number. Try again (Or press \'C\' to quite)  ');
       continue;
     }
   }
-  stdout.write('\nYour Registration Number is $jambRegNo \n');
+  stdout.write('\nREGISTRATION NUMBER RECEIVED...\n');
   return jambRegNo;
 }
 
@@ -145,7 +183,7 @@ bool confirm() {
     else if (answer == 'N' || answer == 'n')
       return false;
     else {
-      stdout.write('\nPlease enter a valid response ');
+      stdout.write('\n\nPlease enter a valid response ');
       continue;
     }
   }
