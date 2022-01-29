@@ -4,7 +4,7 @@ import 'dart:convert';
 void main(List<String> args) async {
   String fullName = '';
   String JambRegNumber = '';
-  List<String?> choosenSubjects = ['', '', '', ''];
+  List<String> choosenSubjects = ['', '', '', ''];
   List<String> scores = ['0', '0', '0', '0'];
   print('\n\n\n\n'
       '===>WELCOME TO JAMB RESULT FORMATTER!<===\n\n\n'
@@ -39,7 +39,7 @@ void main(List<String> args) async {
           continue;
         } else {
           choosenSubjects[i] = enteredSubject;
-          stdout.write('   $enteredSubject');
+          stdout.write('\n\n$enteredSubject');
           stdout.write('   Enter Score from 0 — 100  ');
           String? nullScore = stdin.readLineSync();
           String score = nullScore!;
@@ -48,37 +48,41 @@ void main(List<String> args) async {
       }
     }
     int totalScore = calculatingScore(scores);
+    int length = subjectLength(choosenSubjects);
     await processingResult();
     print('''
     FULL NAME: $fullName
 
     REGISTRATION NUMBER: $JambRegNumber
 
-    SUBJECTS TAKEN AND SCORES:
-    ——————————————————————————————————————————————
-    | 1. | ${choosenSubjects[0]}: | ${scores[0]} |
-    |————|————————————————————————|——————————————|
-    | 2. | ${choosenSubjects[1]}: | ${scores[1]} |
-    |————|————————————————————————|——————————————|
-    | 3. | ${choosenSubjects[2]}: | ${scores[2]} |
-    |————|————————————————————————|——————————————|
-    | 4. | ${choosenSubjects[3]}: | ${scores[3]} |
-    ——————————————————————————————————————————————
-    YOU HAD A CUMMULATIVE SCORE OF ($totalScore/400)
+    Subject Taken and Associated Scores:
+    ———————${'—'.padRight(length + 8, '—')}
+    | 1. | ${choosenSubjects[0].padRight(length)} — ${scores[0].padLeft(3)} |
+    |————|—${'—'.padRight(length + 7, '—')}|
+    | 2. | ${choosenSubjects[1].padRight(length)} — ${scores[1].padLeft(3)} | 
+    |————|—${'—'.padRight(length + 7, '—')}|
+    | 3. | ${choosenSubjects[2].padRight(length)} — ${scores[2].padLeft(3)} | 
+    |————|—${'—'.padRight(length + 7, '—')}|
+    | 4. | ${choosenSubjects[3].padRight(length)} — ${scores[3].padLeft(3)} | 
+    ———————${'—'.padRight(length + 8, '—')}
+    ${''.padLeft(length + 15 - 29, ' ')}Cummulative Score = $totalScore / 400
     ''');
   } else
     exitprogram();
 }
 
-Future processingResult() {
-  print('\n\nProcessing result');
-  for (var i = 0; i <= 2; i++) displayDots();
+Future processingResult() async {
+  stdout.write('\n\nProcessing result');
+  for (var i = 0; i <= 3; i++) {
+    await displayDots();
+    if (i == 3) break;
+    stdout.write(' . ');
+  }
   print('\n\n');
-  return Future.delayed(Duration(seconds: 3));
+  return Future.delayed(Duration(seconds: 0));
 }
 
 Future displayDots() {
-  stdout.write('.');
   return Future.delayed(Duration(seconds: 1));
 }
 
@@ -88,6 +92,16 @@ int calculatingScore(scores) {
     total += int.parse(scores[i]);
   }
   return total;
+}
+
+int subjectLength(List<String> choosenSubject) {
+  int length = 0;
+  String subject;
+  for (var i = 0; i <= 3; i++) {
+    subject = choosenSubject[i];
+    if (length < subject.length) length = subject.length;
+  }
+  return length;
 }
 
 void exitprogram() {
@@ -120,8 +134,8 @@ String scoreCheck(String score) {
 String regNoVerification() {
   String jambRegNo;
   stdout.write('''\n\n
-NOTE: YOUR JAMB REGISTRATION NUMBER MUST BE IN THIS FORMAT 0 1 2 3 4 5 6 7 T H
-      10 INTEGERS IMMEDIATELY FOLLOWED BY TWO ALPHABETS.\n\n''');
+NOTE: Your JAMB Registration Number Should be in this format 0 1 2 3 4 5 6 7 T H
+      10 Integers Immdiately Followed by Two Alphabets.\n\n''');
   stdout.write(
       '\nPlease enter a valid JAMB registration Number (Or press \'C\' to quite):  ');
   while (true) {
@@ -145,7 +159,7 @@ NOTE: YOUR JAMB REGISTRATION NUMBER MUST BE IN THIS FORMAT 0 1 2 3 4 5 6 7 T H
       continue;
     }
   }
-  stdout.write('\nREGISTRATION NUMBER RECEIVED...\n');
+  stdout.write('\nJAMB Registration Number Received...');
   return jambRegNo;
 }
 
@@ -303,7 +317,7 @@ String verifiedSubject(String subj, List choosenSubjects) {
       'ISLAMIC RELIGIOUS STUDIES',
       'PURE AND APPLIED MATHEMATICS'
     ];
-    for (var i = 0; i < 32; i++) {
+    for (var i = 0; i <= 32; i++) {
       if (upperSubj == sub[i]) {
         subValue = true;
         subName = subjects[i];
