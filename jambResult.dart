@@ -9,47 +9,62 @@ void main(List<String> args) async {
   print('\n\n\n\n'
       '===>WELCOME TO JAMB RESULT FORMATTER!<===\n\n\n'
       'Please fill in your details carefully as wrong details would lead to a wrong result\n\n');
+
+  ///Procede with the program if the user agree to continue or end the program
   if (confirm()) {
-    stdout.write('\n\nPlease Enter your full name: ');
-    String? nullname = stdin.readLineSync();
-    fullName = nullname!.toUpperCase();
-    String JambRegNo = regNoVerification();
-    if (JambRegNo == '*#00019~#')
+    fullName =
+        fullNameValidation(); //Ensure full name is inputed then return it
+    String JambRegNo = regNoVerification(); //Validate Reg No then return it
+    if (JambRegNo ==
+        '*#00019~#') //if RegNo is '*#00019~#' end program, else continue
       exitprogram();
     else {
-      JambRegNumber = JambRegNo;
-      jambSubjects();
+      JambRegNumber = JambRegNo; //store validated RegNo in JambRegNumber
+      jambSubjects(); //Display all jamb subject and their code
       stdout.write('\nPlease input in the subject\'s code\n');
+      //Loop 4 times to ask for 4 subjects and their associated score
       for (var i = 0; i <= 3; i++) {
         stdout.write('\n\nSubject ${i + 1} ');
         String? nullEnteredSubject = stdin.readLineSync();
+        //Validate the user inputed subject and return a result
         String enteredSubject =
             verifiedSubject(nullEnteredSubject!, choosenSubjects);
+        //if empty value is returned, ask for a value.
         if (enteredSubject == '') {
           stdout.write('\n\nPlease enter a Subject code!!!');
           i--;
           continue;
+          //if '*#000015#' is returned, ask for a valid subject code
         } else if (enteredSubject == '*#000015#') {
           stdout.write('\n\nIncorrect Subject Code! Enter a valid one!!!');
           i--;
           continue;
+          //if '00000' is returned, already choosen, ask for a new one
         } else if (enteredSubject == '00000') {
           stdout.write('\n\nAlready Choosen! Enter a new one!!!');
           i--;
           continue;
+          //else, store the varified subject in the choosenSubjects list
         } else {
           choosenSubjects[i] = enteredSubject;
           stdout.write('\n\n$enteredSubject');
+          // Enter Score
           stdout.write('   Enter Score from 0 — 100  ');
           String? nullScore = stdin.readLineSync();
           String score = nullScore!;
+          //validate the score and store in the scores list accordingly
           scores[i] = scoreCheck(score);
         }
       }
     }
+    //calculate the total accumulated scores
     int totalScore = calculatingScore(scores);
+    //get the legth of the longest full name of the choosen subject
     int length = subjectLength(choosenSubjects);
+    //wait for about 3 seconds
     await processingResult();
+    //print a formated output of the full name, regNo, subjects & scores, and
+    //the total scores
     print('''
     FULL NAME: $fullName
 
@@ -71,6 +86,7 @@ void main(List<String> args) async {
     exitprogram();
 }
 
+//A function that takes a min of 3-second to execute
 Future processingResult() async {
   stdout.write('\n\nProcessing result');
   for (var i = 0; i <= 3; i++) {
@@ -82,11 +98,31 @@ Future processingResult() async {
   return Future.delayed(Duration(seconds: 0));
 }
 
+//a function that takes 1-second to execute
 Future displayDots() {
   return Future.delayed(Duration(seconds: 1));
 }
 
-int calculatingScore(scores) {
+//a function that ask for full name, validates it and ensure it is more than
+//one name. then returns a validated full name
+String fullNameValidation() {
+  stdout.write('\n\nPlease Enter your full name: ');
+  String? nullname = stdin.readLineSync();
+  while (true) {
+    String fullName = nullname!.toUpperCase();
+    var splited = fullName.split(" ");
+    if (splited.length >= 2)
+      return fullName;
+    else {
+      stdout.write('\nPlease Enter more than one name ');
+      nullname = stdin.readLineSync();
+      continue;
+    }
+  }
+}
+
+//a function that receives a list of string integers and returns the total as int
+int calculatingScore(List<String> scores) {
   int total = 0;
   for (var i = 0; i <= 3; i++) {
     total += int.parse(scores[i]);
@@ -94,6 +130,8 @@ int calculatingScore(scores) {
   return total;
 }
 
+//a function that receives a list of subjects and returns the lenght of the
+// longest subject as int
 int subjectLength(List<String> choosenSubject) {
   int length = 0;
   String subject;
@@ -104,11 +142,14 @@ int subjectLength(List<String> choosenSubject) {
   return length;
 }
 
+//a function that displays a final message and quits the program
 void exitprogram() {
   print('\n\n\n\THANK YOU FOR YOUR RESPONSE!!! SEE YOU ANOTHER TIME!!');
   exit(0);
 }
 
+// a function that receives a string score, validates it to ensure it is a number
+//between 0 - 100 and returns it as string
 String scoreCheck(String score) {
   while (true) {
     try {
@@ -131,6 +172,8 @@ String scoreCheck(String score) {
   }
 }
 
+//a function that validates jamb regNo to fulfill program specifications
+//and returns it
 String regNoVerification() {
   String jambRegNo;
   stdout.write('''\n\n
@@ -145,6 +188,7 @@ NOTE: Your JAMB Registration Number Should be in this format 0 1 2 3 4 5 6 7 T H
       return '*#00019~#';
     } else if ((regno.isNotEmpty) && (regno.runes.length == 10)) {
       regno = regno.toUpperCase();
+      //must be 10characters with first 8numbers and last 2-alphabets
       if (regNoValidation(regno)) {
         jambRegNo = regno;
         break;
@@ -163,6 +207,8 @@ NOTE: Your JAMB Registration Number Should be in this format 0 1 2 3 4 5 6 7 T H
   return jambRegNo;
 }
 
+//a function that receives regno as string and returns true if it is
+//10characters with 8numbers and last 2-alphabets, else false
 bool regNoValidation(String regno) {
   bool value = false;
   for (var i = 0; i <= 9; i++) {
@@ -188,6 +234,8 @@ String capitalize(String string) {
   return string[0].toUpperCase() + string.substring(1);
 }
 
+// a function that confirms if the user wants to continue and returns true if so
+// else return false
 bool confirm() {
   stdout.write('\nWould you like to continue YES(Y) / NO (N) ');
   while (true) {
@@ -203,6 +251,8 @@ bool confirm() {
   }
 }
 
+//a function that accept a string and returns true if the string is a number
+//else return false
 bool isNumber(String numba) {
   List<int> numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   bool value = false;
@@ -220,8 +270,9 @@ bool isNumber(String numba) {
   return value;
 }
 
+// a function that displays the list of available jamb subject and their code
 void jambSubjects() {
-  print(
+  stdout.write(
       '''\n\nLIST OF AVAILABLE JAMB SUBJECTS AND THEIR SUBJECT CODE (please select any four subject combination code)
 —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 | Accounting - (ACCT)           | Agricultural Science - (AGRIC)      | Applied Mathematics - (AMATH) | Biology - (BIO)            | Botany - (BOT)                         |
@@ -240,6 +291,9 @@ void jambSubjects() {
 —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————''');
 }
 
+//a function that accepts a string(subject code) and a list and ensures that
+//the string is a valid subject code. it also checks if the subject of
+// the subject code is not already in the list. it returns the subject if so.
 String verifiedSubject(String subj, List choosenSubjects) {
   if (subj == '')
     return '';
@@ -333,6 +387,7 @@ String verifiedSubject(String subj, List choosenSubjects) {
   }
 }
 
+// a function that accepts a string and returns true if it is an alphabet
 bool isAlphabet(String alpha) {
   List<String> alphabet = [
     'A',
