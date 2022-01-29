@@ -12,11 +12,11 @@ void main(List<String> args) async {
 
   ///Procede with the program if the user agree to continue or end the program
   if (confirm()) {
-    fullName =
-        fullNameValidation(); //Ensure full name is inputed then return it
+    //validate inputed full name and return it and store in fullName variable
+    fullName = fullNameValidation();
     String JambRegNo = regNoVerification(); //Validate Reg No then return it
-    if (JambRegNo ==
-        '*#00019~#') //if RegNo is '*#00019~#' end program, else continue
+    //if RegNo is '*#00019~#' end program, else continue
+    if (JambRegNo == '*#00019~#')
       exitprogram();
     else {
       JambRegNumber = JambRegNo; //store validated RegNo in JambRegNumber
@@ -44,7 +44,7 @@ void main(List<String> args) async {
           stdout.write('\n\nAlready Choosen! Enter a new one!!!');
           i--;
           continue;
-          //else, store the varified subject in the choosenSubjects list
+          //else, store the verified subject in the choosenSubjects list
         } else {
           choosenSubjects[i] = enteredSubject;
           stdout.write('\n\n$enteredSubject');
@@ -59,7 +59,7 @@ void main(List<String> args) async {
     }
     //calculate the total accumulated scores
     int totalScore = calculatingScore(scores);
-    //get the legth of the longest full name of the choosen subject
+    //get the legth of the longest string of the choosen subject
     int length = subjectLength(choosenSubjects);
     //wait for about 3 seconds
     await processingResult();
@@ -173,7 +173,7 @@ String scoreCheck(String score) {
 }
 
 //a function that validates jamb regNo to fulfill program specifications
-//and returns it
+//and returns a coded output or the validated regNo
 String regNoVerification() {
   String jambRegNo;
   stdout.write('''\n\n
@@ -184,25 +184,31 @@ NOTE: Your JAMB Registration Number Should be in this format 0 1 2 3 4 5 6 7 T H
   while (true) {
     String? regNo = stdin.readLineSync();
     String regno = regNo!;
+    //if user pressed 'c'to quite, then return '*#00019~#', else continue
     if (regno == 'c' || regno == 'C') {
       return '*#00019~#';
+      //if input is not empty and it has a length of 10
     } else if ((regno.isNotEmpty) && (regno.runes.length == 10)) {
       regno = regno.toUpperCase();
-      //must be 10characters with first 8numbers and last 2-alphabets
+      //ensure the 10characters has first 8-numbers and last 2-alphabets
+      //if so, the break the while loop
       if (regNoValidation(regno)) {
         jambRegNo = regno;
         break;
+        //else print invalid regNo. Try again
       } else {
         stdout.write(
             '\nInvalid Registration Number. Try again (Or press \'C\' to quite)  ');
         continue;
       }
+      //else print invalid regNo and try again
     } else {
       stdout.write(
           '\nInvalid Registration Number. Try again (Or press \'C\' to quite)  ');
       continue;
     }
   }
+  //if all condition are satisfied, print regNo received and return the regNo
   stdout.write('\nJAMB Registration Number Received...');
   return jambRegNo;
 }
